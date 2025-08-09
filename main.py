@@ -4,6 +4,7 @@
       This script calculates genre statistics for a given search term
       using the open-source iTunes API.
 """
+from curses.ascii import isalpha
 
 from MusicAPI import MusicAPI
 
@@ -18,15 +19,22 @@ def process_input(api, term):
         for item in stats:
             print(item)
 
-def main():
+def init_session():
     """Initialize tool and prompt user for search term"""
     print("---------------------------------")
     print("\t\tgenre-query-stats")
     print("\tBy Joel Coddington-Lopez")
     print("---------------------------------")
 
-    session_name = input("Please enter a session name to log your results: ")
-    print("---------------------------------")
+    while True:
+        session_name = (
+            input("Please enter a session name to log your results: "))
+        if len(session_name) == 0 or not(session_name.isalnum()):
+            print("Invalid session name. Please keep your session name to",
+                  "alphanumeric characters. ")
+            print("---------------------------------")
+        else:
+            break
 
     api = MusicAPI(session_name)
 
@@ -40,4 +48,4 @@ def main():
         process_input(api, term)
 
 if __name__ == "__main__":
-    main()
+    init_session()
