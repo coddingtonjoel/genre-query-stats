@@ -4,17 +4,21 @@
       This class initializes the iTunes API for use in `main.py`.
 """
 import requests
+import os
 
 class MusicAPI:
     def __init__(self, session_name):
         """Constructor sets up class variables and local session info"""
         self.ENDPOINT = "https://itunes.apple.com/search?"
+        self.LIMIT = 100
         self.SEARCH_PARAMS = {
             "entity": ["music", "song"],
-            "limit": 100
+            "limit": self.LIMIT
         }
         self.__session = session_name
         self.__session_logs = []
+        # track if a query has been executed or not for saving log data
+        self.__query_executed = False
 
     def __str__(self):
         """Overload printing of class instantiation to read filename"""
@@ -24,10 +28,16 @@ class MusicAPI:
         """Overload destructor to print result log location"""
         print("-----------------------------------")
         print("> Query engine has now shut down.")
-        print("> Result logs are available in", self)
+        log_success = self.__write_logs()
+        if log_success:
+            print("> Result logs are available in", self)
+        elif self.__query_executed:
+            print("> An unknown error occurred when saving log data.")
 
     def query(self, term):
         """Queries the iTunes API and returns raw API response"""
+        if not self.__query_executed:
+            self.__query_executed = True
         print("> Loading... this may take a moment!")
         try:
             # construct request URL
@@ -63,9 +73,9 @@ class MusicAPI:
         # occasionally, the iTunes API ignores `LIMIT` (likely a bug?) and
         # still returns a dataset with length > 100, so we'll chop that
         # excess data off in the event this edge case occurs
-        if dataset_size > 100:
-            genre_list = genre_list[0 : 100]
-            dataset_size = 100
+        if dataset_size > self.LIMIT:
+            genre_list = genre_list[0 : self.LIMIT]
+            dataset_size = self.LIMIT
 
         # use a set to calculate total amount of individual genres returned
         present_genres = set(genre_list)
@@ -100,9 +110,28 @@ class MusicAPI:
                 if i == value:
                     genre_stats.append("\t- {x}% - {g}".format(x=value, g=key))
 
-        # self.__write_log(genre_stats)
+        # add to session logs list
+        self.__session_logs.append(genre_stats)
         return tuple(genre_stats)
 
-    def __write_log(self):
-        """Writes statistics from session into a local text file"""
-        print(self.__session)
+    def __write_logs(self):
+        """Writes statistics from session into a local text file. Returns
+        True if logs were successfully written and false if not."""
+        if self.__query_executed:
+            cwd = os.getcwd()
+            # use __str__() overload to get filename
+            path = os.path.join(cwd, self.__str__())
+            try:
+                file = open(path, 'w')
+                # flatten session_logs (a list of lists)
+                flattened_list = []
+                for session_list in self.__session_logs:
+                    for item in session_list:
+                        flattened_list.append(item + "\n")
+                file.writelines(flattened_list)
+                file.close()
+                return True
+            except:
+                return False
+        else:
+            return False

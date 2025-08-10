@@ -4,8 +4,6 @@
       This script calculates genre statistics for a given search term
       using the open-source iTunes API.
 """
-from curses.ascii import isalpha
-
 from MusicAPI import MusicAPI
 
 def process_input(api, term):
