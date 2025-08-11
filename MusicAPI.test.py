@@ -8,13 +8,47 @@ from MusicAPI import MusicAPI
 
 def empty_session_test():
     """Unit test for checking if a session with no queries works as expected"""
-    print("empty")
-    return True
+    api = MusicAPI("empty_session_test", test_mode=True)
+    api.write_logs()
+
+    cwd = os.getcwd()
+    path = os.path.join(cwd, "empty_session_test.txt")
+
+    # assert the file doesn't exist, because no query was run
+    try:
+        assert os.path.exists(path) == False
+        return True
+    except AssertionError:
+        return False
 
 def valid_session_test():
     """Unit test for checking if a session with one query works as expected"""
-    print("valid")
-    return True
+    api = MusicAPI("valid_session_test", test_mode=True)
+    search_term = "song"
+    res = api.query(search_term)
+    api.derive_genre_stats(res, search_term)
+    api.write_logs()
+
+    cwd = os.getcwd()
+    path = os.path.join(cwd, "valid_session_test.txt")
+
+    # check that file is the right length and contains the search term
+    try:
+        file = open(path, "r")
+        lines = file.readlines()
+        assert len(lines) == 13
+        assert "Out of 100 result(s) for song" in lines[0]
+
+        # delete the test file
+        os.remove(path)
+        return True
+    except AssertionError:
+        os.remove(path)
+        return False
+    except FileNotFoundError:
+        return False
+
+
 
 # unit test aggregate to run in main
 unit_tests = [

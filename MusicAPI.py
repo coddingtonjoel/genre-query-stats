@@ -7,7 +7,7 @@ import requests
 import os
 
 class MusicAPI:
-    def __init__(self, session_name):
+    def __init__(self, session_name, test_mode=False):
         """Constructor sets up class variables and local session info"""
         self.ENDPOINT = "https://itunes.apple.com/search?"
         self.LIMIT = 100
@@ -19,6 +19,8 @@ class MusicAPI:
         self.__session_logs = []
         # track if a query has been executed or not for saving log data
         self.__query_executed = False
+        # test mode to suppress print statements for unit tests
+        self.__test_mode = test_mode
 
     def __str__(self):
         """Overload printing of class instantiation to read filename"""
@@ -26,19 +28,21 @@ class MusicAPI:
 
     def __del__(self):
         """Overload destructor to print result log location"""
-        print("-----------------------------------")
-        print("> Query engine has now shut down.")
-        log_success = self.__write_logs()
-        if log_success:
-            print("> Result logs are available in", self)
-        elif self.__query_executed:
-            print("> An unknown error occurred when saving log data.")
+        if not self.__test_mode:
+            print("-----------------------------------")
+            print("> Query engine has now shut down.")
+            log_success = self.write_logs()
+            if log_success:
+                print("> Result logs are available in", self)
+            elif self.__query_executed:
+                print("> An unknown error occurred when saving log data.")
 
     def query(self, term):
         """Queries the iTunes API and returns raw API response"""
         if not self.__query_executed:
             self.__query_executed = True
-        print("> Loading... this may take a moment!")
+        if not self.__test_mode:
+            print("> Loading... this may take a moment!")
         try:
             # construct request URL
             req_url = (self.ENDPOINT + "limit={l}&"
@@ -114,7 +118,7 @@ class MusicAPI:
         self.__session_logs.append(genre_stats)
         return tuple(genre_stats)
 
-    def __write_logs(self):
+    def write_logs(self):
         """Writes statistics from session into a local text file. Returns
         True if logs were successfully written and false if not."""
         if self.__query_executed:
