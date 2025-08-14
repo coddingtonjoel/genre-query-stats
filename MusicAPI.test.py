@@ -1,7 +1,7 @@
 """
       Joel Coddington-Lopez
       Boston University - Summer 2025
-      This script tests the MusicAPI class.
+      This script includes two unit tests for the MusicAPI class.
 """
 import os
 from MusicAPI import MusicAPI
@@ -14,7 +14,7 @@ def empty_session_test():
     cwd = os.getcwd()
     path = os.path.join(cwd, "empty_session_test.txt")
 
-    # assert the file doesn't exist, because no query was run
+    # assert the file doesn't exist, because no query was executed
     try:
         assert os.path.exists(path) == False
         return True
@@ -47,8 +47,6 @@ def valid_session_test():
         return False
     except FileNotFoundError:
         return False
-
-
 
 # unit test aggregate to run in main
 unit_tests = [
