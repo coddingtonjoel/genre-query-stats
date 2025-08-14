@@ -31,11 +31,12 @@ class MusicAPI:
         if not self.__test_mode:
             print("-----------------------------------")
             print("> Query engine has now shut down.")
-            log_success = self.write_logs()
-            if log_success:
-                print("> Result logs are available in", self)
-            elif self.__query_executed:
-                print("> An unknown error occurred when saving log data.")
+            if len(self.__session_logs) > 0:
+                log_success = self.write_logs()
+                if log_success:
+                    print("> Result logs are available in", self)
+                elif self.__query_executed:
+                    print("> An unknown error occurred when saving log data.")
 
     def query(self, term):
         """Queries the iTunes API and returns raw API response"""
@@ -97,9 +98,12 @@ class MusicAPI:
             "Out of {size} result(s) for {term}, {x} genre(s) were identified."
             .format(
                 size=dataset_size, term=term, x=len(present_genres)
-            ),
-            "Here are the stats:",
+            )
         ]
+
+        # only expect to show stats if result count is > 0
+        if dataset_size > 0:
+            genre_stats.append("Here are the stats:")
 
         # derive percentages from genre_stats, need to set value of each
         # stats_by_genre item to the percentage rather than count

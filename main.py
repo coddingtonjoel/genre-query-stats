@@ -19,17 +19,17 @@ def process_input(api, term):
 
 def init_session():
     """Initialize tool and prompt user for search term"""
-    print("---------------------------------")
-    print("\t\tgenre-query-stats")
+    print("-------------------------------------")
+    print("\tgenre-query-stats")
     print("\tBy Joel Coddington-Lopez")
-    print("---------------------------------")
+    print("-------------------------------------")
 
     while True:
         session_name = (
             input("Please enter a session name to log your results: "))
         if len(session_name) == 0 or not(session_name.isalnum()):
             print("Invalid session name. Please keep your session name to",
-                  "alphanumeric characters. ")
+                  "alphanumeric characters (one word). ")
             print("---------------------------------")
         else:
             break
